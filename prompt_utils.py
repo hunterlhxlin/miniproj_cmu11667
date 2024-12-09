@@ -1,18 +1,28 @@
 # utils.py
 
-def generate_prompt(q, a1, a2, mode='eval', label=None):
+def generate_conversation(conversation):
+    conversation_text = ""
+    for entry in conversation:
+        if entry["role"] == "user":
+            conversation_text += f"User: {entry['content']}\n"
+        else:
+            conversation_text += f"Model: {entry['content']}\n"
+    return conversation_text
+
+def generate_prompt(a1, a2, mode='eval', label=None):
     prompt_prefix = (
-        "You are given a question and two possible answers. "
+        "You are given two conversations regarding the same question but with different language models. "
         "You need to decide which answer is better. "
         "You can choose one of the following labels: "
         "model_a, model_b, tie, tie(bothbad). \n\n"
-        f"Question:\n{q}\n\n"
-        f"model_a Answer:\n{a1}\n\n"
-        f"model_b Answer:\n{a2}\n\n"
+        f"model_a conversation:\n{generate_conversation(a1)}\n\n"
+        f"model_b conversation:\n{generate_conversation(a2)}\n\n"
         "Which is better?\n\n"
         f"Label: "
     )
     if mode == 'train':
+        if label is None:
+            raise ValueError("Label is required for training mode.")
         prompt = prompt_prefix + label
     elif mode == 'eval':
         prompt = prompt_prefix
@@ -21,9 +31,9 @@ def generate_prompt(q, a1, a2, mode='eval', label=None):
     
     return prompt
 
-def generate_few_shot_prompts(few_shot_examples, q, a1, a2):
+def generate_few_shot_prompts(few_shot_examples, a1, a2):
     prompt = (
-        "You are given a question and two possible answers. "
+        "You will be given two conversations regarding the same question but with different language models. "
         "You need to decide which answer is better. "
         "You can choose one of the following labels: "
         "model_a, model_b, tie, tie(bothbad). \n\n"
@@ -31,15 +41,15 @@ def generate_few_shot_prompts(few_shot_examples, q, a1, a2):
     )
     for example in few_shot_examples:
         prompt += (
-            f"Example question:\n{example['question']}\n\n"
-            f"model_a Answer:\n{example['answer_a']}\n\n"
-            f"model_b Answer:\n{example['answer_b']}\n\n"
-            f"Label: {example['label']}\n\n"
+            f"model_a conversation:\n{generate_conversation(example['conversation_a'])}\n\n"
+            f"model_b conversation:\n{generate_conversation(example['conversation_b'])}\n\n"
+            f"Which is better?\n\n"
+            f"Label: {example['winner']}\n\n"
         )
     prompt += (
-        f"Question:\n{q}\n\n"
-        f"model_a Answer:\n{a1}\n\n"
-        f"model_b Answer:\n{a2}\n\n"
+        "Now consider the following pair of conversations:\n\n"
+        f"model_a conversation:\n{generate_conversation(a1)}\n\n"
+        f"model_b conversation:\n{generate_conversation(a2)}\n\n"
         "Which is better?\n\n"
         "Label: "
     )
