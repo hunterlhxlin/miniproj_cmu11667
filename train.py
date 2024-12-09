@@ -10,7 +10,7 @@ from transformers import (
     AutoModelForCausalLM,
     TrainingArguments,
     Trainer,
-    DataCollatorForCausalLM
+    DataCollatorWithPadding
 )
 from functools import partial
 from peft import LoraConfig, PrefixTuningConfig, get_peft_model
@@ -29,7 +29,7 @@ def preprocess_function(examples, tokenizer):
         text = generate_prompt(a1, a2, mode='train', label=l)
         inputs.append(text)
 
-    model_inputs = tokenizer(inputs, truncation=True, padding=False, max_length=1024)
+    model_inputs = tokenizer(inputs, return_tensors="pt")
     model_inputs["labels"] = model_inputs["input_ids"].copy()
     return model_inputs
 
@@ -78,7 +78,7 @@ def main(args):
     train_encoded = train_dataset.map(preprocess_fn, batched=True, remove_columns=train_dataset.column_names)
     val_encoded = val_dataset.map(preprocess_fn, batched=True, remove_columns=val_dataset.column_names)
 
-    data_collator = DataCollatorForCausalLM(tokenizer=tokenizer, padding=True)
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer, padding=True)
 
     training_args = TrainingArguments(
         output_dir=args.output_dir,

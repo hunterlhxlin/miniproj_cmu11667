@@ -40,7 +40,7 @@ def predict_sft(model, tokenizer, dataset, batch_size=8):
             for example in batch
         ]
         
-        inputs = tokenizer(prompts, return_tensors="pt", truncation=True, padding=True, max_length=1024).to(device)
+        inputs = tokenizer(prompts, return_tensors="pt").to(device)
         
         with torch.no_grad():
             generated_ids = model.generate(
