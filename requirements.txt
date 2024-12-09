@@ -3,7 +3,7 @@ accelerate==0.34.2
 datasets==3.0.1
 evaluate==0.4.0
 peft==0.5.0
-bitsandbytes==0.41.1
-scikit-learn==1.3.0
+bitsandbytes==0.45.0
+scikit-learn==1.5.2
 tqdm
-pyyaml==6.0
+langdetect
