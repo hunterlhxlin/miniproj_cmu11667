@@ -12,6 +12,7 @@ from sklearn.metrics import accuracy_score, f1_score
 import wandb
 from peft import PeftModel
 from prompt_utils import generate_prompt, generate_few_shot_prompts
+from tqdm import tqdm
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -33,14 +34,15 @@ def predict_sft(model, tokenizer, dataset, batch_size=8):
     dataset_size = len(dataset)
     num_batches = (dataset_size + batch_size - 1) // batch_size
 
-    for i in range(num_batches):
+    for i in tqdm(range(num_batches)):
         batch = dataset[i*batch_size : (i+1)*batch_size]
-        prompts = [
-            generate_prompt(example["conversation_a"], example["conversation_b"], mode="eval")
-            for example in batch
-        ]
+        prompts = []
         
-        inputs = tokenizer(prompts, padding=True).to(device)
+        for a, b in zip(batch["conversation_a"], batch["conversation_b"]):
+            prompt = generate_prompt(a, b, mode="eval")
+            prompts.append(prompt)
+        
+        inputs = tokenizer(prompts, return_tensors='pt').to(device)
         
         with torch.no_grad():
             generated_ids = model.generate(
@@ -67,7 +69,7 @@ def predict_sft(model, tokenizer, dataset, batch_size=8):
                 predicted_label = "tie"
             
             predictions.append(label2id[predicted_label])
-            references.append(label2id[batch[j]["winner"]])
+            references.append(label2id[batch["winner"][j]])
 
     acc = accuracy_score(references, predictions)
     f1 = f1_score(references, predictions, average="weighted")
@@ -79,7 +81,8 @@ def predict_icl(model, tokenizer, dataset, few_shot_examples, N=4):
 
     predictions = []
     references = []
-    for ex in dataset:
+    for i in tqdm(range(len(dataset))):
+        ex = dataset[i]
         gold_label = label2id[ex["winner"]]
         prompt = generate_few_shot_prompts(few_shot_examples, ex["conversation_a"], ex["conversation_b"])
         inputs = tokenizer(prompt, padding=True).to(device)
@@ -125,7 +128,8 @@ def main(args):
     if args.finetune_method == "full":
         model = AutoModelForCausalLM.from_pretrained(args.model_dir, device_map="auto")
     elif args.finetune_method in ["lora", "prefix"]:
-        model = PeftModel.from_pretrained(args.model_dir, device_map="auto")
+        base_model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.2-1B-Instruct", device_map="auto")
+        model = PeftModel.from_pretrained(base_model, args.model_dir, device_map="auto")
     else:
         raise ValueError("finetune_method should be 'full', 'lora' or 'prefix'")
 
@@ -155,7 +159,7 @@ if __name__ == "__main__":
                         help="Fine-tuning method used: 'full', 'lora', or 'prefix'.")
     parser.add_argument("--eval_method", type=str, choices=["sft","icl"], required=True,
                         help="Evaluation method: 'sft' for supervised fine-tuning, 'icl' for in-context learning.")
-    parser.add_argument("--batch_size", type=int, default=8, help="Batch size for evaluation.")
+    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for evaluation.")
     parser.add_argument("--few_shot", type=int, default=4, help="Number of few-shot examples for ICL.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
     parser.add_argument("--use_wandb", action="store_true", help="Whether to use Weights & Biases for logging.")
