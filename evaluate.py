@@ -48,9 +48,10 @@ def predict_sft(model, tokenizer, dataset, batch_size=8):
             generated_ids = model.generate(
                 **inputs,
                 max_new_tokens=10,
-                do_sample=False,              
+                do_sample=True,              
                 temperature=1.0,
                 top_k=8,
+                pad_token_id=tokenizer.eos_token_id
             )
         generated_texts = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
         
