@@ -29,7 +29,7 @@ def preprocess_function(examples, tokenizer):
         text = generate_prompt(a1, a2, mode='train', label=l)
         inputs.append(text)
 
-    model_inputs = tokenizer(inputs, return_tensors="pt")
+    model_inputs = tokenizer(inputs, return_tensors="pt", padding=True)
     model_inputs["labels"] = model_inputs["input_ids"].copy()
     return model_inputs
 

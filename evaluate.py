@@ -40,7 +40,7 @@ def predict_sft(model, tokenizer, dataset, batch_size=8):
             for example in batch
         ]
         
-        inputs = tokenizer(prompts, return_tensors="pt").to(device)
+        inputs = tokenizer(prompts, return_tensors="pt", padding=True).to(device)
         
         with torch.no_grad():
             generated_ids = model.generate(
@@ -82,7 +82,7 @@ def predict_icl(model, tokenizer, dataset, few_shot_examples, N=4):
     for ex in dataset:
         gold_label = label2id[ex["winner"]]
         prompt = generate_few_shot_prompts(few_shot_examples, ex["conversation_a"], ex["conversation_b"])
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
+        inputs = tokenizer(prompt, return_tensors="pt", padding=True).to(device)
         with torch.no_grad():
             output_ids = model.generate(**inputs, max_new_tokens=20)
             output_text = tokenizer.decode(output_ids[0], skip_special_tokens=True)
