@@ -2,11 +2,13 @@
 
 def generate_conversation(conversation):
     conversation_text = ""
-    for entry in conversation:
-        if entry["role"] == "user":
-            conversation_text += f"User: {entry['content']}\n"
-        else:
-            conversation_text += f"Model: {entry['content']}\n"
+    # for entry in conversation:
+    #     if entry["role"] == "user":
+    #         conversation_text += f"User: {entry['content']}\n"
+    #     else:
+    #         conversation_text += f"Model: {entry['content']}\n"
+    conversation_text += f"User: {conversation['content']}\n"
+    conversation_text += f"Model: {conversation['content']}\n"
     return conversation_text
 
 def generate_prompt(a1, a2, mode='eval', label=None):
