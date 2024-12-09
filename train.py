@@ -30,7 +30,7 @@ def preprocess_function(examples, tokenizer):
         inputs.append(text)
 
     model_inputs = tokenizer(inputs, padding=True)
-    model_inputs["labels"] = model_inputs["input_ids"].clone()
+    model_inputs["labels"] = model_inputs["input_ids"]
     return model_inputs
 
 def main(args):
