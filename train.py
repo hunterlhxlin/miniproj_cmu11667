@@ -29,7 +29,7 @@ def preprocess_function(examples, tokenizer):
         text = generate_prompt(a1, a2, mode='train', label=l)
         inputs.append(text)
 
-    model_inputs = tokenizer(inputs, padding='max_length', max_length=12000)
+    model_inputs = tokenizer(inputs)
     model_inputs["labels"] = model_inputs["input_ids"]
     return model_inputs
 
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("--data_dir", type=str, required=True, default="./split_data", help="Path to the splitted dataset")
     parser.add_argument("--model_name", type=str, required=True, help="Model name, e.g. meta-llama/Llama-3.2-1B-Instruct")
     parser.add_argument("--finetune_method", type=str, choices=["full","lora","prefix"], default="full", required=True, help="Finetuning method")
-    parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--num_train_epochs", type=int, default=1)
     parser.add_argument("--learning_rate", type=float, default=2e-5)
     parser.add_argument("--seed", type=int, default=42)
