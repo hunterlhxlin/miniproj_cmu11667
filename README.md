@@ -25,7 +25,8 @@ pip install -U "huggingface_hub[cli]"
 
 
 ### Preparing the data
-Due to the fact that `lmsys/chatbot_arena_conversations` has only one split, plz refer to `data_split.py` to ensure the consistency of the val and test sets. Use a fixed rand seed.
+Due to the fact that `lmsys/chatbot_arena_conversations` has only one split, plz refer to `data_split.py` to ensure the consistency of the val and test sets. Use a fixed rand seed. Also for simplicity, we filter out conversations that are not English.
+
 
 ### Training and Evaluation
 Please refer to `train.py` and `evaluate.py`

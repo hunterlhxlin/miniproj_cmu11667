@@ -14,7 +14,7 @@ from transformers import (
 )
 from functools import partial
 from peft import LoraConfig, PrefixTuningConfig, get_peft_model
-from prompt_utils import generate_prompt, generate_few_shot_prompts
+from prompt_utils import generate_prompt
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -25,12 +25,11 @@ def set_seed(seed=42):
 
 def preprocess_function(examples, tokenizer):
     inputs = []
-    for q, a1, a2, l in zip(examples["question"], examples["answer_a"], examples["answer_b"], examples["label"]):
-        text = generate_prompt(q, a1, a2, mode='train', label=l)
+    for a1, a2, l in zip(examples["conversation_a"], examples["conversation_b"], examples["winner"]):
+        text = generate_prompt(a1, a2, mode='train', label=l)
         inputs.append(text)
 
     model_inputs = tokenizer(inputs, truncation=True, padding=False, max_length=1024)
-    # 将整个序列设为labels，模型将尝试预测整个序列中的token（自回归方式）
     model_inputs["labels"] = model_inputs["input_ids"].copy()
     return model_inputs
 
@@ -44,8 +43,6 @@ def main(args):
     # load dataset
     train_dataset = load_from_disk(os.path.join(args.data_dir, "train"))
     val_dataset = load_from_disk(os.path.join(args.data_dir, "val"))
-
-    label_list = ["model_a", "model_b", "tie", "tie(bothbad)"]
 
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, use_fast=False)
     if tokenizer.pad_token_id is None:

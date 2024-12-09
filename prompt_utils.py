@@ -14,7 +14,7 @@ def generate_prompt(a1, a2, mode='eval', label=None):
         "You are given two conversations regarding the same question but with different language models. "
         "You need to decide which answer is better. "
         "You can choose one of the following labels: "
-        "model_a, model_b, tie, tie(bothbad). \n\n"
+        "model_a, model_b, tie, tie (bothbad). \n\n"
         f"model_a conversation:\n{generate_conversation(a1)}\n\n"
         f"model_b conversation:\n{generate_conversation(a2)}\n\n"
         "Which is better?\n\n"
@@ -36,7 +36,7 @@ def generate_few_shot_prompts(few_shot_examples, a1, a2):
         "You will be given two conversations regarding the same question but with different language models. "
         "You need to decide which answer is better. "
         "You can choose one of the following labels: "
-        "model_a, model_b, tie, tie(bothbad). \n\n"
+        "model_a, model_b, tie, tie (bothbad). \n\n"
         "Consider the following examples to understand the task better:\n\n"
     )
     for example in few_shot_examples:
