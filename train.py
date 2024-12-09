@@ -77,7 +77,15 @@ def main(args):
     preprocess_fn = partial(preprocess_function, tokenizer=tokenizer)
     train_encoded = train_dataset.map(preprocess_fn, batched=True, remove_columns=train_dataset.column_names)
     val_encoded = val_dataset.map(preprocess_fn, batched=True, remove_columns=val_dataset.column_names)
-
+    
+    seq_thresh = 1024
+    train_encoded = train_encoded.filter(lambda x: len(x['input_ids']) <= seq_thresh)
+    val_encoded = val_encoded.filter(lambda x: len(x['input_ids']) <= seq_thresh)
+    
+    # print the filtered dataset length
+    print("Train dataset length after filtering: ", len(train_encoded))
+    print("Validation dataset length after filtering: ", len(val_encoded))
+    
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer, padding=True)
 
     training_args = TrainingArguments(

@@ -8,7 +8,7 @@ def generate_conversation(conversation):
     #     else:
     #         conversation_text += f"Model: {entry['content']}\n"
     conversation_text += f"User: {conversation[0]['content']}\n"
-    conversation_text += f"Model: {conversation[0]['content']}\n"
+    conversation_text += f"Model: {conversation[1]['content']}\n"
     return conversation_text
 
 def generate_prompt(a1, a2, mode='eval', label=None):
