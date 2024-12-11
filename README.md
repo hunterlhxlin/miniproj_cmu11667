@@ -29,4 +29,5 @@ Due to the fact that `lmsys/chatbot_arena_conversations` has only one split, plz
 
 
 ### Training and Evaluation
-Please refer to `train.py` and `evaluate.py`
+Please refer to `train.py` and `evaluate.py`   
+<mark>use --batch_size 1 to run</mark>
